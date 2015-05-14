@@ -53,7 +53,6 @@ public class IncidentsDBHelper extends SQLiteOpenHelper {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-
 			// Creating Table
 			Log.i(TAG_1, "Creating Table: " + CREATE_DATABASE_TABLE_1);
 			db.execSQL(CREATE_DATABASE_TABLE_1);

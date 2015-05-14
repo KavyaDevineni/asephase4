@@ -8,6 +8,13 @@
     <string name="title_activity_main">GPSBasedIncidentReporter</string>
     <string name="hello_world">Welcome to GPSBasedIncidentReporter</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_main1">MainActivity</string>  
-    <string name="getincidents">getNearByIncidents</string>  
+    <string name="title_activity_main1">GPSBasedIncidentReporter</string>
+    <string name="getincidents">getNearByIncidents</string>
+    <string name="username">UserName</string>
+    <string name="password">Password</string>
+    <string name="btnLogin">Login</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="usernamevalue">kavya</string>
+    <string name="paswordvalue">kavya1234</string>
+
 </resources>

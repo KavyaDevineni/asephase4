@@ -60,6 +60,22 @@ public class IncidentsAdapter {
 			}
 			return mCursor;
 		}
+		
+		public Cursor fetchIncident(String address,String city, String state, String country, String postalcode, String knownname) throws SQLException {
+
+			Cursor mCursor = database.query(true, DATABASE_TABLE_1, new String[] {
+					ROWID, TYPE , LOCATION,DESCRIPTION,EST_CLEARENCE_TIME,STARTTIME}, LOCATION+" like %"+city+"% OR "+LOCATION+" like %"+state+"% OR "+
+							LOCATION+" like %"+country+"% OR "+LOCATION+" like %"+address+"% OR "+LOCATION+" like %"+knownname+"% OR "+LOCATION+" like %"+postalcode+"%", null, null, null, null, null);
+			
+			Log.i("LocationQuery", LOCATION+" like %"+city+"% OR "+LOCATION+" like %"+state+"% OR "+
+							LOCATION+" like %"+country+"% OR "+LOCATION+" like %"+address+"% OR "+LOCATION+" like %"+knownname+"% OR "+LOCATION+" like %"+postalcode+"%");
+
+			if(mCursor != null) {
+				mCursor.moveToFirst();
+			}
+			return mCursor;
+		}
+
 
 		public Cursor fetchIncidentCount(long incidentid) throws SQLException {
 

@@ -18,8 +18,12 @@ import com.android.database.IncidentsAdapter;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -28,10 +32,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements LocationListener{ 
@@ -45,12 +51,14 @@ public class MainActivity extends Activity implements LocationListener{
 	String provider;
 	protected double latitude,longitude; 
 	protected boolean gps_enabled,network_enabled;
+	IncidentsAdapter incidentsdbadapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
+	setActivityBackgroundColor(Color.GREEN);
 	//code to communicate with db
-	IncidentsAdapter incidentsdbadapter = new IncidentsAdapter();
+	incidentsdbadapter = new IncidentsAdapter();
 	incidentsdbadapter = incidentsdbadapter.open(getApplicationContext());
 	//Cursor cursor = incidentsdbadapter.fetchIncident(2);
 	Cursor cursor = incidentsdbadapter.fetchAllIncidents();
@@ -64,7 +72,24 @@ public class MainActivity extends Activity implements LocationListener{
 				cursor.getString(5)+"\n\n");
 	}
 	
-	txtLat.setText(builder.toString());
+	txtLat.setText("List of All Incidents:\n============================\n"+builder.toString());
+	
+	//Code for notifications
+	NotificationCompat.Builder mBuilder =   new NotificationCompat.Builder(this)
+    .setSmallIcon(R.drawable.ic_launcher) // notification icon
+    .setContentTitle("Incidents/Scheduled Report") // title for notification
+    .setContentText(builder.toString()) // message for notification
+    .setAutoCancel(false); // clear notification after click
+	Intent intent = new Intent(this, MainActivity.class);
+	PendingIntent pi = PendingIntent.getActivity(this,0,intent,Intent.FLAG_ACTIVITY_NEW_TASK);
+	mBuilder.setContentIntent(pi);
+	NotificationManager mNotificationManager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+	
+    mNotificationManager.notify(0, mBuilder.build());
+    
+    
+
 	locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 	
@@ -135,13 +160,43 @@ public class MainActivity extends Activity implements LocationListener{
 				String postalCode = addresses.get(0).getPostalCode();
 				String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
 				
-				txtLat.setText("address:" + address + ", city:" + city+", state:"+state+", country:"+country+
-						", postalCode:"+postalCode+", konwnName"+knownName);
+				Cursor cursor = incidentsdbadapter.fetchIncident(address, city, state, country, postalCode, knownName);
+				StringBuilder builder=new StringBuilder();
+				while(cursor.moveToNext()){
+					builder.append(cursor.getString(1)+", "+cursor.getString(2)+", "+cursor.getString(3)+", "+cursor.getString(4)+
+							cursor.getString(5)+"\n\n");
 				}
+				
+				txtLat.setText("address:" + address + ", city:" + city+", state:"+state+", country:"+country+
+						", postalCode:"+postalCode+", konwnName:"+knownName);
+				txtLat.setText(builder.toString());
+				
+				//Code for notifications
+				NotificationCompat.Builder mBuilder =   new NotificationCompat.Builder(MainActivity.this)
+			    .setSmallIcon(R.drawable.ic_launcher) // notification icon
+			    .setContentTitle("Incidents/Scheduled Report") // title for notification
+			    .setContentText(builder.toString()) // message for notification
+			    .setAutoCancel(false); // clear notification after click
+				Intent intent = new Intent(MainActivity.this, MainActivity.class);
+				PendingIntent pi = PendingIntent.getActivity(MainActivity.this,0,intent,Intent.FLAG_ACTIVITY_NEW_TASK);
+				mBuilder.setContentIntent(pi);
+				NotificationManager mNotificationManager =
+			            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				
+			    mNotificationManager.notify(0, mBuilder.build());
+				
+			}
+			else
+			 txtLat.setText("You either have internet disabled/not working in your device or No incidents found for current location!!! ");
 				//txtLat.setText(location_string);
 	}});
 	incidentsdbadapter.close();
 	
+	}
+	
+	public void setActivityBackgroundColor(int color) {
+	    View view = this.getWindow().getDecorView();
+	    view.setBackgroundColor(color);
 	}
 	
 	public JSONObject getLocationInfo() {
@@ -215,7 +270,35 @@ public class MainActivity extends Activity implements LocationListener{
 	
 	txtLat.setText("address:" + address + ", city:" + city+", state:"+state+", country:"+country+
 			", postalCode:"+postalCode+", konwnName"+knownName);
+	
+	Cursor cursor = incidentsdbadapter.fetchIncident(address, city, state, country, postalCode, knownName);
+	StringBuilder builder=new StringBuilder();
+	while(cursor.moveToNext()){
+		builder.append(cursor.getString(1)+", "+cursor.getString(2)+", "+cursor.getString(3)+", "+cursor.getString(4)+
+				cursor.getString(5)+"\n\n");
+	}
+	
+	/*txtLat.setText("address:" + address + ", city:" + city+", state:"+state+", country:"+country+
+			", postalCode:"+postalCode+", konwnName:"+knownName);*/
+	txtLat.setText(builder.toString());
+	
+	//Code for notifications
+	NotificationCompat.Builder mBuilder =   new NotificationCompat.Builder(MainActivity.this)
+    .setSmallIcon(R.drawable.ic_launcher) // notification icon
+    .setContentTitle("Incidents/Scheduled Report") // title for notification
+    .setContentText(builder.toString()) // message for notification
+    .setAutoCancel(false); // clear notification after click
+	Intent intent = new Intent(MainActivity.this, MainActivity.class);
+	PendingIntent pi = PendingIntent.getActivity(MainActivity.this,0,intent,Intent.FLAG_ACTIVITY_NEW_TASK);
+	mBuilder.setContentIntent(pi);
+	NotificationManager mNotificationManager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+	
+    mNotificationManager.notify(0, mBuilder.build());
+	
     }
+   else
+	 txtLat.setText("You either have internet disabled/not working in your device or No incidents found for current location!!! ");
    //txtLat.setText(location_string);
    
    
